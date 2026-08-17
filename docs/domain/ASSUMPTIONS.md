@@ -1,6 +1,6 @@
 # Assumptions for the First Calculation Model
 
-This file separates standard-scenario assumptions from simplifications, exclusions, and unresolved product decisions.
+This file separates standard-scenario assumptions from simplifications, exclusions, and product-scope decisions.
 
 ## Included standard scenario
 
@@ -16,10 +16,14 @@ This file separates standard-scenario assumptions from simplifications, exclusio
 - No pension fund contributions
 - No bonuses, overtime, welfare, or fringe benefits
 - No other deductible expenses
+- Validated RAL input range from `EUR 20,000.00` to `EUR 100,000.00`, inclusive
+- Salary installments selectable as `12`, `13`, or `14`
+- Default salary installments value of `13`
 
 ## Simplified assumptions
 
 - Employee INPS contribution rate fixed at `9.19%`
+- The employee contribution rate is not user-selectable
 - Contribution base assumed to be equal to RAL
 - The same RAL is assumed for the entire year
 - Local surcharges are estimated as annual liabilities
@@ -45,16 +49,19 @@ This file separates standard-scenario assumptions from simplifications, exclusio
 - Fringe benefits
 - Welfare benefits
 - Tax-deductible personal expenses
+- Ordinary `trattamento integrativo`
 
 ## Open decisions
 
-These points are intentionally unresolved. They should not be silently decided in code.
+There are no remaining approved open product decisions in the current prototype scope.
 
-- Supported RAL input range
-- Whether `12`, `13`, and `14` installments should all be selectable
-- Whether the `trattamento integrativo` for lower incomes should be implemented
-- Whether contribution rates other than `9.19%` should ever be selectable
-- Behaviour for inputs outside the validated range
+The following decisions are now fixed by product approval:
+
+- Supported RAL input range is `EUR 20,000.00` to `EUR 100,000.00`, inclusive
+- Salary installments are limited to `12`, `13`, or `14`, with `13` as the default
+- Ordinary `trattamento integrativo` is excluded
+- Alternative employee contribution rates are out of scope
+- Unsupported RAL inputs must not produce a calculation result
 
 ## Why these assumptions exist
 

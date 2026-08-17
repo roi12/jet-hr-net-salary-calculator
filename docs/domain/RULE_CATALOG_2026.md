@@ -24,11 +24,11 @@ Verification date used throughout this catalog: `2026-08-17`.
 | `SCOPE-001` | Tax year | Included | Assumed | All outputs |
 | `SCOPE-002` | Full-year employment | Included | Assumed | Deductions, annual net salary, average monthly net salary |
 | `INPUT-001` | Gross annual salary input | Included | Assumed | All outputs |
-| `INPUT-002` | Number of salary installments | Needs validation | Assumed | Average monthly net salary |
+| `INPUT-002` | Number of salary installments | Included | Assumed | Average monthly net salary |
 | `INPS-001` | Simplified employee contribution rate | Simplified | Assumed | Employee contributions, taxable income, all downstream outputs |
 | `INPS-002` | Additional 1% employee contribution | Simplified | Interpreted | Employee contributions, taxable income, all downstream outputs |
 | `TAXBASE-001` | IRPEF taxable income | Simplified | Interpreted | Taxable income, taxes, net salary |
-| `IRPEF-001` | Progressive gross IRPEF | Needs validation | Confirmed | Gross IRPEF, net IRPEF, taxes, net salary |
+| `IRPEF-001` | Progressive gross IRPEF | Included | Confirmed | Gross IRPEF, net IRPEF, taxes, net salary |
 | `DET-001` | Employee tax deduction | Included | Confirmed | Net IRPEF, taxes, net salary |
 | `CUNEO-001` | Tax-free fiscal-wedge amount | Included | Confirmed | Annual net salary, average monthly net salary |
 | `CUNEO-002` | Additional fiscal-wedge tax deduction | Included | Confirmed | Net IRPEF, taxes, net salary |
@@ -41,6 +41,7 @@ Verification date used throughout this catalog: `2026-08-17`.
 | `OUTPUT-005` | Effective tax and withholding rates | Included | Interpreted | Effective rates |
 | `ROUND-001` | Internal precision and display rounding | Simplified | Assumed | All displayed monetary outputs |
 | `TIMING-001` | Annual estimate versus real payslip timing | Simplified | Interpreted | User expectations for all outputs |
+| `TI-001` | Ordinary trattamento integrativo | Excluded | Assumed | Input validation scope and low-income eligibility handling |
 
 ## SCOPE-001 - Tax year
 
@@ -174,20 +175,28 @@ RAL is the main business input. All later calculations depend on it.
 | Parameter | Value | Notes |
 | --- | --- | --- |
 | Input variable | `ral` | Monetary amount in euro |
+| Minimum supported value | `EUR 20,000.00` | Inclusive product limit |
+| Maximum supported value | `EUR 100,000.00` | Inclusive product limit |
 
 ### Logic
 
-The model starts from a single annual gross salary amount before employee contributions and taxes.
+The model starts from a single annual gross salary amount before employee contributions and taxes, but it validates and calculates only within the approved prototype range.
 
 ### Formula
 
-`ral > 0`
+`20,000.00 <= ral <= 100,000.00`
 
 ### Boundary conditions
 
-- Non-numeric values are invalid.
-- Zero or negative RAL is invalid.
-- The supported upper and lower validated range is still an open product decision.
+- `EUR 20,000.00` is accepted.
+- `EUR 100,000.00` is accepted.
+- Values below `EUR 20,000.00` are rejected.
+- Values above `EUR 100,000.00` are rejected.
+- Empty, non-numeric, zero, negative, or infinite values are rejected.
+- This validated range is a product-scope decision, not a statutory tax limit.
+- Inputs below `EUR 20,000.00` are excluded because lower-income cases may require additional `trattamento integrativo` logic and other conditions outside the prototype scope.
+- Inputs above `EUR 100,000.00` are excluded to avoid additional high-income fiscal and contribution cases not required by the standard scenario.
+- For unsupported inputs, the calculator must keep the entered value visible, show a clear inline validation message, and avoid calculating or displaying salary results.
 
 ### Example
 
@@ -205,13 +214,22 @@ The prototype accepts one annual amount instead of modeling multiple salary comp
 
 ### Required tests
 
-- Invalid input test for empty, non-numeric, zero, and negative values.
-- Continuity test around threshold amounts such as `EUR 15,000`, `EUR 20,000`, `EUR 28,000`, `EUR 32,000`, `EUR 40,000`, `EUR 50,000`, `EUR 56,224`.
-- Range-validation tests once the product range is approved.
+- Boundary test: `EUR 19,999.99` rejected.
+- Boundary test: `EUR 20,000.00` accepted.
+- Boundary test: `EUR 35,000.00` accepted.
+- Boundary test: `EUR 100,000.00` accepted.
+- Boundary test: `EUR 100,000.01` rejected.
+- Invalid input test: empty value rejected.
+- Invalid input test: zero rejected.
+- Invalid input test: negative value rejected.
+- Invalid input test: non-numeric value rejected.
+- Invalid input test: infinite value rejected.
+- Validation-state test confirming no salary results are calculated or shown for unsupported inputs.
+- Validation-message test confirming the UI explains the supported range from `EUR 20,000.00` to `EUR 100,000.00`.
 
 ## INPUT-002 - Number of salary installments
 
-- Status: Needs validation
+- Status: Included
 - Confidence: Assumed
 - Tax year: 2026
 - Last verified: 2026-08-17
@@ -229,11 +247,12 @@ Users in Italy often discuss salary over `12`, `13`, or `14` installments. The a
 
 | Parameter | Value | Notes |
 | --- | --- | --- |
-| Candidate installment counts | `12`, `13`, `14` | Product decision still open |
+| Allowed installment counts | `12`, `13`, `14` | Approved product options |
+| Default installment count | `13` | Default user-facing selection |
 
 ### Logic
 
-The annual net salary is divided by the selected number of installments.
+The annual net salary is divided by the selected number of installments. The number of installments does not change annual taxes or annual net salary; it changes only the displayed average monthly net salary.
 
 ### Formula
 
@@ -242,8 +261,10 @@ The annual net salary is divided by the selected number of installments.
 ### Boundary conditions
 
 - `installments` must be a positive integer.
-- Whether all of `12`, `13`, and `14` must be selectable is unresolved.
-- Unsupported installment counts are invalid once the product set is approved.
+- Only `12`, `13`, and `14` are accepted.
+- `13` is the default value.
+- Values other than `12`, `13`, and `14` are rejected.
+- This output is an annual average, not an exact simulation of each individual payslip.
 
 ### Example
 
@@ -261,9 +282,10 @@ This rule produces an annual average only. It does not simulate each payslip.
 
 ### Required tests
 
-- Invalid input test for zero, negative, decimal, and unsupported installment counts.
-- Continuity test confirming annual net does not change when installments change.
-- Monthly-average test for `12`, `13`, and `14` once the allowed set is approved.
+- Annual-net invariance test confirming annual net remains identical for `12`, `13`, and `14` installments.
+- Monthly-average test confirming `averageMonthlyNet = annualNet / installments` for `12`, `13`, and `14`.
+- Invalid input test confirming values other than `12`, `13`, and `14` are rejected.
+- Default-value test confirming the default installment selection is `13`.
 
 ## INPS-001 - Simplified employee contribution rate
 
@@ -300,6 +322,8 @@ Apply a fixed `9.19%` employee contribution rate to the entire contribution base
 
 - If `contributionBase <= 0`, the contribution result is `0`.
 - The rate does not vary by sector, collective agreement, or employer classification in this prototype.
+- The user cannot choose an alternative employee contribution rate.
+- Alternative rates such as `9.49%` are outside scope.
 
 ### Example
 
@@ -307,7 +331,7 @@ If `contributionBase = EUR 30,000`, then `baseEmployeeContributions = EUR 2,757.
 
 ### Simplifications
 
-Real employee rates differ by sector and employer classification. No single official source defines one universal private-sector employee rate for all cases, so `9.19%` is retained as a documented modeling assumption.
+Real employee rates differ by sector and employer classification. No single official source defines one universal private-sector employee rate for all cases, so `9.19%` is retained as a documented modeling assumption and is the only employee contribution rate used by the prototype.
 
 ### Source
 
@@ -321,6 +345,7 @@ Real employee rates differ by sector and employer classification. No single offi
 - Straight-line calculation test with a known RAL.
 - Zero-base test returning `0`.
 - Regression test confirming the fixed rate does not vary by any hidden sector flag.
+- Scope test confirming no alternative employee contribution-rate selector is exposed in the prototype model.
 
 ## INPS-002 - Additional 1% employee contribution
 
@@ -438,7 +463,7 @@ Real tax returns may adjust the base with other deductible items. The prototype 
 
 ## IRPEF-001 - Progressive gross IRPEF
 
-- Status: Needs validation
+- Status: Included
 - Confidence: Confirmed
 - Tax year: 2026
 - Last verified: 2026-08-17
@@ -457,7 +482,7 @@ Gross IRPEF is the main national income-tax step in the model and drives most do
 | Income band | Rate | Notes |
 | --- | --- | --- |
 | Up to `EUR 28,000.00` | `23%` | First bracket |
-| Above `EUR 28,000.00` and up to `EUR 50,000.00` | `35%` | Official 2026 middle bracket |
+| Above `EUR 28,000.00` and up to `EUR 50,000.00` | `33%` | Official 2026 middle bracket for income earned from `2026-01-01` |
 | Above `EUR 50,000.00` | `43%` | Top bracket |
 
 ### Logic
@@ -469,7 +494,7 @@ Apply IRPEF progressively. Each bracket rate applies only to the slice of income
 `grossIrpef =`
 
 - `min(taxableIncome, 28,000.00) * 23%`
-- `+ max(0, min(taxableIncome, 50,000.00) - 28,000.00) * 35%`
+- `+ max(0, min(taxableIncome, 50,000.00) - 28,000.00) * 33%`
 - `+ max(0, taxableIncome - 50,000.00) * 43%`
 
 ### Boundary conditions
@@ -484,21 +509,29 @@ Apply IRPEF progressively. Each bracket rate applies only to the slice of income
 If `taxableIncome = EUR 31,783.50`, then:
 
 - first bracket = `28,000 * 23% = EUR 6,440.00`
-- second bracket = `3,783.50 * 35% = EUR 1,324.225`
-- gross IRPEF = `EUR 7,764.225`
+- second bracket = `3,783.50 * 33% = EUR 1,248.555`
+- gross IRPEF = `EUR 7,688.555`
 
 ### Simplifications
 
-No payroll-specific simplification is applied to the bracket logic itself. The validation issue is different: the task brief supplied a `33%` middle bracket, but the official 2026 legislation confirms `35%`.
+No payroll-specific simplification is applied to the bracket logic itself.
 
 ### Source
 
 - Institution: Normattiva, Presidenza del Consiglio dei Ministri
-- URL: https://www.normattiva.it/eli/stato/LEGGE/2024/12/30/207/ORIGINAL
+- URL: https://www.gazzettaufficiale.it/atto/serie_generale/caricaArticolo?art.codiceRedazionale=25G00212&art.dataPubblicazioneGazzetta=2025-12-30&art.flagTipoArticolo=0&art.idArticolo=1&art.idGruppo=1&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.progressivo=1&art.versione=1
 - Verification date: 2026-08-17
 - Supporting institution: Agenzia delle Entrate
-- Supporting URL: https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef
+- Supporting URL: https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef-cittadini
 - Supporting verification date: 2026-08-17
+
+### Source interpretation note
+
+- Law no. `199` of `2025-12-30`, Article `1`, paragraph `3` changed Article `11`, paragraph `1`, letter `b)` of the TUIR by replacing `35 per cento` with `33 per cento`.
+- The law applies to income earned from `2026-01-01`.
+- A declaration label such as `730/2026` refers primarily to the filing model year, not automatically to the income-year rate table.
+- The `730/2026` instructions primarily concern income earned in tax year `2025`, so they cannot override a later law that changed the IRPEF bracket for income earned in tax year `2026`.
+- The `730/2026` instructions may still support other structural rules that remained in force, but they are not cited here as authority for the 2026 middle IRPEF rate.
 
 ### Required tests
 
@@ -696,7 +729,7 @@ If `income = EUR 31,783.50`, then `fiscalWedgeAdditionalDeduction = EUR 1,000.00
 
 ### Simplifications
 
-The rule is annual. The documentation does not resolve the separate product decision about whether `trattamento integrativo` should also be included for lower incomes.
+The rule is annual. The prototype does not include the separate ordinary `trattamento integrativo`, which is documented explicitly in `TI-001`.
 
 ### Source
 
@@ -1176,7 +1209,7 @@ Keep internal precision across the full annual calculation and round only for di
 ### Example
 
 - `EUR 454.9762` displays as `EUR 454.98`
-- `EUR 1,324.225` displays as `EUR 1,324.23`
+- `EUR 1,248.555` displays as `EUR 1,248.56`
 
 ### Simplifications
 
@@ -1252,3 +1285,61 @@ This rule deliberately avoids payroll-period simulation, addizionali schedules, 
 - Content test confirming the UI labels the monthly result as an annual average.
 - Regression test confirming no hidden monthly simulation logic changes annual outputs.
 - Documentation test ensuring excluded timing details stay excluded.
+
+## TI-001 - Ordinary trattamento integrativo
+
+- Status: Excluded
+- Confidence: Assumed
+- Tax year: 2026
+- Last verified: 2026-08-17
+- Affected output: Input validation scope and low-income eligibility handling
+
+### Purpose
+
+The calculator needs an explicit exclusion rule for the ordinary `trattamento integrativo` so that the prototype does not silently apply a lower-income benefit it does not fully model.
+
+### Inputs
+
+- Gross annual salary
+- Total income
+- Any additional personal deductions that could affect eligibility
+
+### Parameters
+
+| Parameter | Value | Notes |
+| --- | --- | --- |
+| Rule status | Excluded | Not implemented in the prototype |
+| Lower bound of validated RAL range | `EUR 20,000.00` | Inclusive product limit |
+
+### Logic
+
+The prototype excludes the ordinary `trattamento integrativo`. It must not calculate or display it.
+
+### Formula
+
+Not applicable in the prototype because the rule is excluded.
+
+### Boundary conditions
+
+- The calculator must not silently apply `trattamento integrativo`.
+- Inputs below `EUR 20,000.00` are rejected before calculation partly because lower-income cases may require `trattamento integrativo` and additional eligibility conditions outside the prototype scope.
+
+### Example
+
+If a user enters `EUR 19,500.00`, the calculator should not attempt to estimate whether `trattamento integrativo` applies. It should reject the input as out of the validated range.
+
+### Simplifications
+
+This exclusion exists because the prototype focuses on a validated RAL range starting at `EUR 20,000.00` and does not model the additional personal deductions required to determine eligibility in all lower-income cases.
+
+### Source
+
+- Institution: Product scope for this repository
+- URL: Not applicable
+- Verification date: 2026-08-17
+
+### Required tests
+
+- Scope test confirming `trattamento integrativo` is not calculated.
+- Validation test confirming unsupported low-income inputs do not produce salary results.
+- Content test confirming the documentation and UI do not imply that this rule is applied.

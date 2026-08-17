@@ -54,6 +54,8 @@ In scope:
 - Milan municipal surcharge (addizionale comunale IRPEF)
 - Annual net salary
 - Average monthly net salary as an annual average
+- Validated RAL input range from `EUR 20,000.00` to `EUR 100,000.00`, inclusive
+- Salary installments selectable as `12`, `13`, or `14`, with `13` as the default
 
 Out of scope:
 
@@ -64,6 +66,8 @@ Out of scope:
 - Non-standard tax regimes
 - Dependants and personal deductions
 - Other income sources
+- Ordinary `trattamento integrativo`
+- Alternative employee contribution rates such as `9.49%`
 
 See [ASSUMPTIONS.md](./ASSUMPTIONS.md) for the complete scope boundary.
 
@@ -89,6 +93,7 @@ This order matters because later steps depend on earlier ones. In particular:
 - The employee tax deduction and fiscal-wedge rules use income-based thresholds.
 - The fiscal-wedge tax-free amount is not the same thing as a tax deduction.
 - The monthly figure is an annual average, not a promise about each payslip.
+- Changing salary installments changes only the displayed average monthly net salary, not annual taxes or annual net salary.
 
 ## Documentation map
 
@@ -96,7 +101,7 @@ This order matters because later steps depend on earlier ones. In particular:
 | --- | --- |
 | [README.md](./README.md) | Product framing, scope, source hierarchy, and how rules connect to implementation and tests |
 | [GLOSSARY.md](./GLOSSARY.md) | Shared terminology for product, design, and engineering discussions |
-| [ASSUMPTIONS.md](./ASSUMPTIONS.md) | Included scenario, simplifications, exclusions, and unresolved decisions |
+| [ASSUMPTIONS.md](./ASSUMPTIONS.md) | Included scenario, simplifications, exclusions, and approved scope decisions |
 | [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md) | Source-backed rule inventory for the 2026 calculation model |
 | [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) | Worked example and future regression-test fixture |
 
@@ -112,15 +117,41 @@ When sources disagree, the project uses this hierarchy:
 
 Secondary calculators must never be treated as the source of truth.
 
+## Source interpretation note
+
+This project distinguishes between:
+
+- declaration or model year, such as `730/2026`;
+- income tax year, meaning the year in which the income was earned.
+
+That distinction matters for IRPEF rates. The `730/2026` instructions primarily concern income earned during tax year `2025`. They may still help explain structural rules that remain in force, but they are not the authority for the IRPEF rates applicable to income earned from `2026-01-01`.
+
+For income earned in tax year `2026`, the authoritative source for the middle IRPEF bracket is Law no. `199` of `2025-12-30`, Article `1`, paragraph `3`, which amended Article `11`, paragraph `1`, letter `b)` of the TUIR by replacing `35 per cento` with `33 per cento`.
+
 ## Relationship between rules, implementation, and automated tests
 
 - The rule catalog is the domain contract. Application code should implement the formulas and boundaries documented in [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md), not ad hoc logic.
-- The assumptions file defines what the first implementation is allowed to ignore. If a feature is excluded or still open, code should not silently implement it.
+- The assumptions file defines what the first implementation is allowed to ignore. If a feature is excluded or intentionally outside scope, code should not silently implement it.
 - The worked example in [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) should become a regression-test fixture after the implementation phase starts.
 - Each catalog rule lists required threshold, invalid-input, and continuity tests so that automated tests can be derived directly from the documentation.
 
+## Product validation scope
+
+The prototype validates gross annual salary inputs only within the inclusive range from `EUR 20,000.00` to `EUR 100,000.00`.
+
+If the user enters an unsupported value:
+
+- keep the entered value visible;
+- show a clear inline validation message;
+- do not calculate or display salary results;
+- explain that the current prototype supports RAL values from `EUR 20,000.00` to `EUR 100,000.00`.
+
+Suggested message:
+
+“This prototype currently supports gross annual salaries between EUR 20,000 and EUR 100,000.”
+
 ## Current validation note
 
-The official 2026 IRPEF legislation confirms a `35%` middle bracket between `EUR 28,000` and `EUR 50,000`.
+The official 2026 IRPEF legislation confirms a `33%` middle bracket between `EUR 28,000` and `EUR 50,000` for income earned from `2026-01-01`.
 
-That conflicts with the provisional `33%` rate supplied in the task brief. The documentation records that conflict explicitly and marks the affected rule for human validation before implementation begins.
+The documentation therefore treats `IRPEF-001` as confirmed and included for the 2026 model.
