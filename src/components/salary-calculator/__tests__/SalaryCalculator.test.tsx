@@ -17,6 +17,17 @@ describe("SalaryCalculator UI", () => {
 
     expect(screen.queryByText("Netto mensile medio")).not.toBeInTheDocument();
     expect(screen.getByText("Nessuna simulazione mostrata")).toBeInTheDocument();
+    expect(screen.getByText("Cosa semplifica questa stima")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Il risultato usa uno scenario standard: dipendente privato a Milano, anno completo, nessun altro reddito o agevolazione.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "I contributi INPS del dipendente usano l'aliquota standard del 9,19%; l'1% aggiuntivo si applica solo alla quota oltre €56.224.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows the golden-case monthly and annual values after submitting EUR 35,000 and 13 installments", async () => {
@@ -44,6 +55,9 @@ describe("SalaryCalculator UI", () => {
       formatVisibleEuro(thirteenInstallmentResult.totals.annualNetSalary),
     );
     expect(summaryQueries.getByText("Media annuale su 13 mensilità")).toBeInTheDocument();
+    expect(
+      summaryQueries.getByText("Stima annualizzata, non previsione del singolo cedolino."),
+    ).toBeInTheDocument();
     expect(summaryQueries.getByText("Aliquota fiscale effettiva")).toBeInTheDocument();
     expect(summaryQueries.getByText("Incidenza complessiva")).toBeInTheDocument();
   });
