@@ -67,6 +67,9 @@ export function ResultsSummary({ result, resultHeadingRef }: ResultsSummaryProps
             <p className="text-sm font-medium text-[var(--color-text-muted)]">
               Media annuale su {result.input.installments} mensilità
             </p>
+            <p className="text-sm leading-6 text-[var(--color-text-muted)]">
+              Stima annualizzata, non previsione del singolo cedolino.
+            </p>
           </div>
           <div className="border-t border-[rgba(17,21,10,0.08)] pt-4">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

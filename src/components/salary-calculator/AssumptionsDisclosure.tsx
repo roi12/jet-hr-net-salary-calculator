@@ -2,13 +2,25 @@
 
 import { useId, useState } from "react";
 
-const includedItems = [
+const scenarioItems = [
   "Anno fiscale 2026",
   "Tempo indeterminato",
   "Anno lavorativo completo",
   "Residenza fiscale a Milano, Lombardia",
   "Settore privato",
   "Nessun altro reddito o agevolazione",
+];
+
+const simplificationItems = [
+  "La stima è annualizzata e non coincide con un singolo cedolino mensile.",
+  "I contributi INPS del dipendente usano l'aliquota standard del 9,19%; l'1% aggiuntivo si applica solo alla quota oltre €56.224.",
+  "Addizionale regionale lombarda e comunale di Milano sono stimate su base annua senza riprodurre il calendario di trattenuta payroll.",
+];
+
+const expandedSimplificationItems = [
+  "Il netto mensile mostrato è una media annua sulle mensilità selezionate.",
+  "IRPEF, detrazioni e addizionali sono calcolate sull'intero anno fiscale 2026.",
+  "Il timing di conguagli e trattenute locali non viene distribuito come in busta paga.",
 ];
 
 const excludedItems = [
@@ -34,7 +46,7 @@ export function AssumptionsDisclosure() {
             Ambito della simulazione
           </p>
           <h3 id="assumptions-title" className="text-2xl font-semibold text-[var(--color-ink)]">
-            Assunzioni della simulazione
+            Cosa semplifica questa stima
           </h3>
         </div>
         <button
@@ -53,14 +65,28 @@ export function AssumptionsDisclosure() {
         payroll o la consulenza di un professionista.
       </p>
 
+      <div className="mt-6 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4 sm:p-5">
+        <ul className="space-y-3 text-sm leading-6 text-[var(--color-ink)]">
+          {simplificationItems.map((item) => (
+            <li key={item} className="flex gap-3">
+              <span
+                aria-hidden="true"
+                className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]"
+              />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       {open ? (
-        <div id={panelId} className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div id={panelId} className="mt-6 grid gap-5 xl:grid-cols-3">
           <article className="rounded-[20px] border border-[var(--color-border)] bg-white p-5">
             <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-              Scenario incluso
+              Scenario considerato
             </h4>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--color-ink)]">
-              {includedItems.map((item) => (
+              {scenarioItems.map((item) => (
                 <li key={item} className="flex gap-3">
                   <span
                     aria-hidden="true"
@@ -74,7 +100,24 @@ export function AssumptionsDisclosure() {
 
           <article className="rounded-[20px] border border-[var(--color-border)] bg-white p-5">
             <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-              Casi esclusi o semplificati
+              Semplificazioni di calcolo
+            </h4>
+            <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--color-ink)]">
+              {expandedSimplificationItems.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]"
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-[20px] border border-[var(--color-border)] bg-white p-5">
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+              Casi non inclusi
             </h4>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--color-ink)]">
               {excludedItems.map((item) => (
