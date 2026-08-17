@@ -136,16 +136,13 @@ export function SalaryCalculator() {
         {liveMessage}
       </div>
 
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-full border border-[rgba(255,255,255,0.58)] bg-[rgba(255,255,255,0.72)] px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur sm:px-5">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] border border-[rgba(17,21,10,0.08)] bg-[rgba(255,255,255,0.82)] px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur sm:px-5">
+        <div className="min-w-0 shrink-0">
           <Image alt="Jet HR" height={34} priority src={brandLogoPath} width={124} />
-          <span className="hidden rounded-full bg-[var(--color-surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)] sm:inline-flex">
-            Prototipo Product Builder
-          </span>
         </div>
-        <p className="max-w-xl text-right text-sm text-[var(--color-text-muted)]">
-          Simulazione non ufficiale per spiegare un&apos;offerta lorda in modo chiaro e annualizzato.
-        </p>
+        <span className="inline-flex max-w-full items-center rounded-full border border-[rgba(17,21,10,0.08)] bg-[var(--color-surface-muted)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)] sm:text-xs">
+          Prototipo non ufficiale
+        </span>
       </header>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr] xl:items-start">

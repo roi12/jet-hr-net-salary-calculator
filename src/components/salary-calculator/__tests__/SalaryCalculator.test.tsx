@@ -33,17 +33,19 @@ describe("SalaryCalculator UI", () => {
     const resultsSummary = monthlyNetHeading.closest("section");
 
     expect(resultsSummary).not.toBeNull();
-
-    const annualNetLabel = within(resultsSummary!).getByText("Netto annuale");
+    const summaryQueries = within(resultsSummary!);
 
     expect(monthlyNetHeading).toBeInTheDocument();
     expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.averageMonthlyNetSalary),
     );
-    expect(annualNetLabel.nextElementSibling).toHaveTextContent(
+    expect(resultsSummary).toHaveTextContent("Netto annuale");
+    expect(resultsSummary).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.annualNetSalary),
     );
-    expect(screen.getByText("Media annuale su 13 mensilità")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Media annuale su 13 mensilità")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Aliquota fiscale effettiva")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Incidenza complessiva")).toBeInTheDocument();
   });
 
   it("rejects an out-of-range RAL and removes stale results", async () => {
@@ -82,26 +84,26 @@ describe("SalaryCalculator UI", () => {
     const resultsSummary = monthlyNetHeading.closest("section");
 
     expect(resultsSummary).not.toBeNull();
-
-    const annualNetLabel = within(resultsSummary!).getByText("Netto annuale");
+    const summaryQueries = within(resultsSummary!);
 
     expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.averageMonthlyNetSalary),
     );
-    expect(annualNetLabel.nextElementSibling).toHaveTextContent(
+    expect(resultsSummary).toHaveTextContent("Netto annuale");
+    expect(resultsSummary).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.annualNetSalary),
     );
-    expect(screen.getByText("Media annuale su 13 mensilità")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Media annuale su 13 mensilità")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "12" }));
     await user.click(screen.getByRole("button", { name: "Calcola il netto" }));
 
-    expect(annualNetLabel.nextElementSibling).toHaveTextContent(
+    expect(resultsSummary).toHaveTextContent(
       formatVisibleEuro(twelveInstallmentResult.totals.annualNetSalary),
     );
     expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
       formatVisibleEuro(twelveInstallmentResult.totals.averageMonthlyNetSalary),
     );
-    expect(screen.getByText("Media annuale su 12 mensilità")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Media annuale su 12 mensilità")).toBeInTheDocument();
   });
 });
