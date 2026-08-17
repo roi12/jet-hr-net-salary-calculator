@@ -38,7 +38,7 @@ Un candidato o dipendente che vuole soprattutto capire il netto annuo e il netto
 
 ## Ambito del dominio
 
-Questa documentazione copre una stima annuale standard per un dipendente del settore privato a Milano, in Lombardia, secondo le assunzioni elencate in [ASSUMPTIONS.md](./ASSUMPTIONS.md).
+Questa documentazione copre una stima annuale standard per un dipendente del settore privato a Milano, in Lombardia, secondo le ipotesi elencate in [ASSUMPTIONS.md](./ASSUMPTIONS.md).
 
 Incluso nell'ambito:
 
@@ -114,8 +114,8 @@ I calcolatori secondari non devono mai essere trattati come fonte di verità.
 
 ## Relazione tra regole, implementazione e test automatici
 
-- Il catalogo delle regole è il contratto di dominio. Il codice applicativo deve implementare formule e limiti documentati in [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md), non logiche ad hoc.
-- Il file delle assunzioni definisce cosa la prima implementazione può ignorare. Se una funzionalità è esclusa o ancora aperta, il codice non deve implementarla in modo implicito.
+- Il catalogo delle regole è il contratto di dominio. Il codice deve implementare formule e limiti documentati in [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md), non logiche ad hoc.
+- Il file delle ipotesi definisce cosa la prima implementazione può ignorare. Se una funzionalità è esclusa o ancora aperta, il codice non deve implementarla in modo implicito.
 - L'esempio svolto in [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) dovrebbe diventare una fixture di regressione dopo l'avvio della fase di implementazione.
 - Ogni regola del catalogo elenca i test necessari su soglie, input non validi e continuità, così che i test automatici possano derivare direttamente dalla documentazione.
 
