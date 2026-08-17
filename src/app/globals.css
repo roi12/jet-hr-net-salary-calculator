@@ -2,16 +2,56 @@
 
 :root {
   color-scheme: light;
+  --color-ink: #11150a;
+  --color-surface: #ffffff;
+  --color-page-bg: #cfe7a8;
+  --color-surface-muted: #f3f4ef;
+  --color-border: #e4e6de;
+  --color-accent: #e4f24a;
+  --color-accent-soft: #f1f7bf;
+  --color-text-muted: #6e7468;
+  --color-success: #6ccb5f;
+  --color-danger: #ff6b6b;
+  --shadow-card: 0 1px 2px rgba(17, 21, 10, 0.05);
+  --shadow-soft: 0 18px 36px rgba(17, 21, 10, 0.08);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: #ffffff;
-  color: #11150a;
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(228, 242, 74, 0.24), transparent 30%),
+    linear-gradient(180deg, #d7ecb5 0%, #eef4e4 38%, #f9faf7 100%);
+  color: var(--color-ink);
+  font-family: "Plus Jakarta Sans", "Aptos", "Segoe UI", system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(228, 242, 74, 0.55);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+summary {
+  font: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
