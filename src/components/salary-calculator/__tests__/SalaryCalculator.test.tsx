@@ -11,6 +11,12 @@ function formatVisibleEuro(value: number) {
   return formatEuro(value).replace(/\u00A0/g, " ");
 }
 
+function formatGinTonic(value: number) {
+  return `≈ ${new Intl.NumberFormat("it-IT", {
+    maximumFractionDigits: 0,
+  }).format(Math.floor(value / 8))} gin tonic`;
+}
+
 describe("SalaryCalculator UI", () => {
   it("keeps results hidden before the first valid submission", () => {
     render(<SalaryCalculator />);
@@ -50,6 +56,8 @@ describe("SalaryCalculator UI", () => {
     expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.averageMonthlyNetSalary),
     );
+    expect(screen.getByRole("radio", { name: "Euro" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: /Gin tonic/i })).not.toBeChecked();
     expect(resultsSummary).toHaveTextContent("Netto annuale");
     expect(resultsSummary).toHaveTextContent(
       formatVisibleEuro(thirteenInstallmentResult.totals.annualNetSalary),
@@ -58,6 +66,7 @@ describe("SalaryCalculator UI", () => {
     expect(
       summaryQueries.getByText("Stima annualizzata, non previsione del singolo cedolino."),
     ).toBeInTheDocument();
+    expect(summaryQueries.queryByText("Valore indicativo: 1 gin tonic = 8 €")).not.toBeInTheDocument();
     expect(summaryQueries.getByText("Aliquota fiscale effettiva")).toBeInTheDocument();
     expect(summaryQueries.getByText("Incidenza complessiva")).toBeInTheDocument();
   });
@@ -119,5 +128,64 @@ describe("SalaryCalculator UI", () => {
       formatVisibleEuro(twelveInstallmentResult.totals.averageMonthlyNetSalary),
     );
     expect(summaryQueries.getByText("Media annuale su 12 mensilità")).toBeInTheDocument();
+  });
+
+  it("switches between euro and gin tonic modes without changing domain values", async () => {
+    const user = userEvent.setup();
+    render(<SalaryCalculator />);
+
+    await user.click(screen.getByRole("button", { name: "Calcola il netto" }));
+
+    const result = calculateSalary({
+      grossAnnualSalary: 35_000,
+      installments: 13,
+    });
+    const monthlyNetHeading = screen.getByRole("heading", { name: "Netto mensile medio" });
+    const resultsSummary = monthlyNetHeading.closest("section");
+
+    expect(resultsSummary).not.toBeNull();
+    const summaryQueries = within(resultsSummary!);
+    const taxesLabel = summaryQueries.getByText("Imposte annuali");
+    const contributionsLabel = summaryQueries.getByText("Contributi INPS");
+    const withholdingsLabel = summaryQueries.getByText("Trattenute complessive");
+
+    expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.totals.averageMonthlyNetSalary),
+    );
+    expect(resultsSummary).toHaveTextContent(formatVisibleEuro(result.totals.annualNetSalary));
+    expect(taxesLabel.nextElementSibling).toHaveTextContent(formatVisibleEuro(result.totals.totalTaxes));
+    expect(contributionsLabel.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.contributions.totalEmployeeContributions),
+    );
+    expect(withholdingsLabel.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.totals.totalWithholdings),
+    );
+
+    await user.click(screen.getByRole("radio", { name: /Gin tonic/i }));
+
+    expect(screen.getByRole("radio", { name: /Gin tonic/i })).toBeChecked();
+    expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
+      formatGinTonic(result.totals.averageMonthlyNetSalary),
+    );
+    expect(resultsSummary).toHaveTextContent(formatGinTonic(result.totals.annualNetSalary));
+    expect(summaryQueries.getByText("Valore indicativo: 1 gin tonic = 8 €")).toBeInTheDocument();
+    expect(taxesLabel.nextElementSibling).toHaveTextContent(formatVisibleEuro(result.totals.totalTaxes));
+    expect(contributionsLabel.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.contributions.totalEmployeeContributions),
+    );
+    expect(withholdingsLabel.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.totals.totalWithholdings),
+    );
+    expect(summaryQueries.getByText("Aliquota fiscale effettiva")).toBeInTheDocument();
+    expect(summaryQueries.getByText("Incidenza complessiva")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("radio", { name: "Euro" }));
+
+    expect(screen.getByRole("radio", { name: "Euro" })).toBeChecked();
+    expect(monthlyNetHeading.nextElementSibling).toHaveTextContent(
+      formatVisibleEuro(result.totals.averageMonthlyNetSalary),
+    );
+    expect(resultsSummary).toHaveTextContent(formatVisibleEuro(result.totals.annualNetSalary));
+    expect(summaryQueries.queryByText("Valore indicativo: 1 gin tonic = 8 €")).not.toBeInTheDocument();
   });
 });

@@ -1,139 +1,139 @@
-# Italian 2026 Gross-to-Net Domain Documentation
+# Documentazione del dominio RAL-netto Italia 2026
 
-This folder defines the domain rules for an unofficial prototype created for the Jet HR Product Builder technical task.
+Questa cartella definisce le regole di dominio per un prototipo non ufficiale realizzato per la task tecnica Jet HR Product Builder.
 
-The prototype estimates an employee's annual and average monthly net salary from a Gross annual salary (Retribuzione Annua Lorda, RAL) and explains the main deductions and tax benefits that move the result from gross to net.
+Il prototipo stima il netto annuo e il netto mensile medio di un dipendente a partire dalla Retribuzione Annua Lorda (RAL) e spiega le principali trattenute e agevolazioni fiscali che portano dal lordo al netto.
 
-It is a product and engineering reference. It is not legal, tax, payroll, or accounting advice.
+È un riferimento di prodotto e ingegneria. Non costituisce consulenza legale, fiscale, paghe o contabile.
 
-## Product objective
+## Obiettivo di prodotto
 
-Build a transparent annual gross-to-net estimator for a standard Italian employee scenario so that non-specialist users can:
+Costruire uno stimatore annuale trasparente dal lordo al netto per uno scenario standard di dipendente italiano, in modo che utenti non specialisti possano:
 
-- translate a RAL into an estimated annual net salary;
-- translate that annual estimate into an average monthly net salary;
-- inspect the main deductions, taxes, and benefits behind the result;
-- understand what the prototype includes, simplifies, and excludes.
+- tradurre una RAL in una stima del netto annuo;
+- tradurre quella stima annua in un netto mensile medio;
+- esaminare le principali trattenute, imposte e agevolazioni che determinano il risultato;
+- capire cosa il prototipo include, semplifica ed esclude.
 
-## Personas
+## Persone
 
-### Primary persona
+### Persona primaria
 
-An HR manager, recruiter, or founder at an Italian startup or SME who is preparing or explaining a job offer but is not a payroll specialist.
+Un HR manager, recruiter o founder di una startup o PMI italiana che sta preparando o spiegando un'offerta di lavoro, ma non è uno specialista payroll.
 
-### Secondary persona
+### Persona secondaria
 
-A candidate or employee who mainly wants to understand the estimated annual and monthly net salary.
+Un candidato o dipendente che vuole soprattutto capire il netto annuo e il netto mensile stimato.
 
-## Main use cases
+## Casi d'uso principali
 
-- Estimate the annual net salary associated with a proposed RAL.
-- Explain how employee social-security contributions, IRPEF, and local surcharges affect take-home pay.
-- Compare offer scenarios at a high level before a payroll office or consultant produces the official payslip simulation.
-- Produce a documented example that can later become a regression-test fixture.
+- Stimare il netto annuo associato a una RAL proposta.
+- Spiegare come contributi previdenziali del dipendente, IRPEF e addizionali locali incidono sul netto percepito.
+- Confrontare scenari di offerta a livello alto prima che un ufficio paghe o un consulente produca la simulazione ufficiale del cedolino.
+- Produrre un esempio documentato che possa diventare in seguito una fixture per test di regressione.
 
 ## User story
 
-“As an HR manager, recruiter or founder, I want to estimate the net salary associated with a RAL and understand every major deduction so that I can prepare and explain a compensation offer transparently.”
+“Come HR manager, recruiter o founder, voglio stimare il netto associato a una RAL e comprendere ogni trattenuta principale, così da poter preparare e spiegare un'offerta retributiva in modo trasparente.”
 
-## Domain scope
+## Ambito del dominio
 
-This documentation covers a standard annual estimate for a private-sector employee in Milan, Lombardy, under the assumptions listed in [ASSUMPTIONS.md](./ASSUMPTIONS.md).
+Questa documentazione copre una stima annuale standard per un dipendente del settore privato a Milano, in Lombardia, secondo le assunzioni elencate in [ASSUMPTIONS.md](./ASSUMPTIONS.md).
 
-In scope:
+Incluso nell'ambito:
 
-- Gross annual salary (Retribuzione Annua Lorda, RAL)
-- Employee social-security contributions
-- IRPEF taxable income
-- Gross IRPEF (IRPEF lorda)
-- Employee tax deduction (detrazione per lavoro dipendente)
-- Fiscal-wedge benefit (cuneo fiscale), split into:
-  - tax-free amount for lower incomes;
-  - additional tax deduction for higher bands
-- Lombardy regional surcharge (addizionale regionale IRPEF)
-- Milan municipal surcharge (addizionale comunale IRPEF)
-- Annual net salary
-- Average monthly net salary as an annual average
+- Retribuzione Annua Lorda (RAL)
+- Contributi previdenziali a carico del dipendente
+- Reddito imponibile IRPEF
+- IRPEF lorda
+- Detrazione per lavoro dipendente
+- Beneficio del cuneo fiscale, suddiviso in:
+  - quota esente per i redditi più bassi;
+  - detrazione aggiuntiva per le fasce superiori
+- Addizionale regionale IRPEF della Lombardia
+- Addizionale comunale IRPEF del Comune di Milano
+- Netto annuo
+- Netto mensile medio come media annuale
 
-Out of scope:
+Fuori ambito:
 
-- Employer cost
-- Employer contributions
+- Costo azienda
+- Contributi a carico del datore di lavoro
 - TFR
-- Exact month-by-month payroll simulation
-- Non-standard tax regimes
-- Dependants and personal deductions
-- Other income sources
+- Simulazione payroll esatta mese per mese
+- Regimi fiscali non standard
+- Familiari a carico e detrazioni personali
+- Altre fonti di reddito
 
-See [ASSUMPTIONS.md](./ASSUMPTIONS.md) for the complete scope boundary.
+Vedi [ASSUMPTIONS.md](./ASSUMPTIONS.md) per il perimetro completo.
 
-## Calculation sequence
+## Sequenza di calcolo
 
-The domain model follows this annual sequence:
+Il modello di dominio segue questa sequenza annuale:
 
-1. Gross annual salary
-2. Employee social-security contributions
-3. IRPEF taxable income
-4. Gross IRPEF
-5. Employee tax deduction
-6. Fiscal-wedge benefit
-7. Net IRPEF
-8. Lombardy regional surcharge
-9. Milan municipal surcharge
-10. Annual net salary
-11. Average monthly net salary
+1. Retribuzione annua lorda
+2. Contributi previdenziali del dipendente
+3. Reddito imponibile IRPEF
+4. IRPEF lorda
+5. Detrazione per lavoro dipendente
+6. Beneficio del cuneo fiscale
+7. IRPEF netta
+8. Addizionale regionale della Lombardia
+9. Addizionale comunale di Milano
+10. Netto annuo
+11. Netto mensile medio
 
-This order matters because later steps depend on earlier ones. In particular:
+Quest'ordine è importante perché i passaggi successivi dipendono da quelli precedenti. In particolare:
 
-- IRPEF uses taxable income after employee contributions.
-- The employee tax deduction and fiscal-wedge rules use income-based thresholds.
-- The fiscal-wedge tax-free amount is not the same thing as a tax deduction.
-- The monthly figure is an annual average, not a promise about each payslip.
+- l'IRPEF usa l'imponibile dopo i contributi del dipendente;
+- la detrazione per lavoro dipendente e le regole del cuneo fiscale usano soglie basate sul reddito;
+- la quota esente del cuneo fiscale non coincide con una detrazione d'imposta;
+- la cifra mensile è una media annua, non una promessa sul singolo cedolino.
 
-## Documentation map
+## Mappa della documentazione
 
-| File | Purpose |
+| File | Scopo |
 | --- | --- |
-| [README.md](./README.md) | Product framing, scope, source hierarchy, and how rules connect to implementation and tests |
-| [GLOSSARY.md](./GLOSSARY.md) | Shared terminology for product, design, and engineering discussions |
-| [ASSUMPTIONS.md](./ASSUMPTIONS.md) | Included scenario, simplifications, exclusions, and unresolved decisions |
-| [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md) | Source-backed rule inventory for the 2026 calculation model |
-| [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) | Worked example and future regression-test fixture |
+| [README.md](./README.md) | Inquadramento di prodotto, ambito, gerarchia delle fonti e collegamento tra regole, implementazione e test |
+| [GLOSSARY.md](./GLOSSARY.md) | Terminologia condivisa per discussioni di prodotto, design e ingegneria |
+| [ASSUMPTIONS.md](./ASSUMPTIONS.md) | Scenario incluso, semplificazioni, esclusioni e decisioni ancora aperte |
+| [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md) | Inventario delle regole del modello 2026 supportato da fonti |
+| [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) | Esempio svolto e futura fixture per test di regressione |
 
-## Source hierarchy
+## Gerarchia delle fonti
 
-When sources disagree, the project uses this hierarchy:
+Quando le fonti non concordano, il progetto usa questa gerarchia:
 
-1. Italian legislation and official regulations
+1. Legislazione italiana e regolamenti ufficiali
 2. Agenzia delle Entrate
 3. INPS
-4. Regione Lombardia and Comune di Milano
-5. Secondary calculators only for comparison and sanity checking
+4. Regione Lombardia e Comune di Milano
+5. Calcolatori secondari solo per confronto e sanity check
 
-Secondary calculators must never be treated as the source of truth.
+I calcolatori secondari non devono mai essere trattati come fonte di verità.
 
-## Relationship between rules, implementation, and automated tests
+## Relazione tra regole, implementazione e test automatici
 
-- The rule catalog is the domain contract. Application code should implement the formulas and boundaries documented in [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md), not ad hoc logic.
-- The assumptions file defines what the first implementation is allowed to ignore. If a feature is excluded or still open, code should not silently implement it.
-- The worked example in [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) should become a regression-test fixture after the implementation phase starts.
-- Each catalog rule lists required threshold, invalid-input, and continuity tests so that automated tests can be derived directly from the documentation.
+- Il catalogo delle regole è il contratto di dominio. Il codice applicativo deve implementare formule e limiti documentati in [RULE_CATALOG_2026.md](./RULE_CATALOG_2026.md), non logiche ad hoc.
+- Il file delle assunzioni definisce cosa la prima implementazione può ignorare. Se una funzionalità è esclusa o ancora aperta, il codice non deve implementarla in modo implicito.
+- L'esempio svolto in [EXAMPLE_RAL_35000.md](./EXAMPLE_RAL_35000.md) dovrebbe diventare una fixture di regressione dopo l'avvio della fase di implementazione.
+- Ogni regola del catalogo elenca i test necessari su soglie, input non validi e continuità, così che i test automatici possano derivare direttamente dalla documentazione.
 
-## Current validation note
+## Nota di validazione corrente
 
-For income earned during tax year `2026`, `IRPEF-001` is `Included` and `Confirmed`.
+Per i redditi percepiti nell'anno fiscale `2026`, `IRPEF-001` è `Included` e `Confirmed`.
 
-The confirmed 2026 IRPEF rates are:
+Le aliquote IRPEF confermate per il 2026 sono:
 
-- `23%` up to `EUR 28,000`
-- `33%` above `EUR 28,000` and up to `EUR 50,000`
-- `43%` above `EUR 50,000`
+- `23%` fino a `EUR 28,000`
+- `33%` oltre `EUR 28,000` e fino a `EUR 50,000`
+- `43%` oltre `EUR 50,000`
 
-Primary legal source:
+Fonte normativa primaria:
 
-- Law no. `199` of `2025-12-30`, Article `1`, paragraph `3`, which replaced `35 per cento` with `33 per cento` in Article `11`, paragraph `1`, letter `b)` of the TUIR for income earned from `2026-01-01`
+- Legge n. `199` del `2025-12-30`, articolo `1`, comma `3`, che ha sostituito `35 per cento` con `33 per cento` nell'articolo `11`, comma `1`, lettera `b)` del TUIR per i redditi percepiti dal `2026-01-01`
 
-Source interpretation matters:
+L'interpretazione della fonte è importante:
 
-- `730/2026` primarily concerns income earned in tax year `2025`
-- it is not the authority for the rate applicable to income earned in tax year `2026`
+- il `730/2026` riguarda principalmente i redditi percepiti nell'anno fiscale `2025`
+- non è la fonte autoritativa per l'aliquota applicabile ai redditi percepiti nell'anno fiscale `2026`
