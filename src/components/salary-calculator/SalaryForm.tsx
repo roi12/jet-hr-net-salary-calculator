@@ -147,6 +147,10 @@ export function SalaryForm({
         </fieldset>
 
         <div className="space-y-3">
+          <p className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--color-ink)]">
+            Il risultato usa uno scenario standard: dipendente privato a Milano, anno
+            completo, nessun altro reddito o agevolazione.
+          </p>
           <button
             className="inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[var(--color-ink)] px-5 py-3 text-base font-semibold text-white transition-transform hover:-translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-ink)]"
             type="submit"

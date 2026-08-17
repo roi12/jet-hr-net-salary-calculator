@@ -55,3 +55,37 @@ summary {
   white-space: nowrap;
   border: 0;
 }
+
+.results-summary-card {
+  container: results-summary / inline-size;
+}
+
+.results-summary-primary > * {
+  min-width: 0;
+}
+
+.results-summary-rate-item {
+  min-width: 0;
+}
+
+.results-summary-amount {
+  font-size: clamp(2.35rem, 8vw, 4.5rem);
+}
+
+@supports (font-size: 1cqi) {
+  .results-summary-amount {
+    font-size: clamp(2.35rem, 10cqi, 4.5rem);
+  }
+}
+
+@container results-summary (min-width: 39rem) {
+  .results-summary-primary {
+    grid-template-columns: minmax(0, 1.45fr) minmax(13.5rem, 0.95fr);
+    align-items: start;
+  }
+
+  .results-summary-rate-item + .results-summary-rate-item {
+    border-left: 1px solid rgba(17, 21, 10, 0.08);
+    padding-left: 1rem;
+  }
+}
