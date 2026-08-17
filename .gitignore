@@ -1,1 +1,6 @@
-AGENTS.md
+.next
+coverage
+node_modules
+out
+*.log
+tsconfig.tsbuildinfo
